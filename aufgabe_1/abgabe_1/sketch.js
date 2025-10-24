@@ -46,25 +46,32 @@ function setup() {
 
 function draw() {
   let val = valueSlider.value();
-  
+
   // Farben
   let dark = color(86, 60, 92);
   let light = color(242, 189, 205);
-  
-  // Dynamische Hintergrundfüllung basierend auf Slider
-  let leftWeight = map(val, 0, 100, 1, 0);  // 0 → linker Kreis voll, 100 → rechter Kreis voll
-  let rightWeight = map(val, 0, 100, 0, 1);
-  
-  // Hintergrund zeichnen
-  fill(lerpColor(light, dark, leftWeight));
-  rect(0, 0, width, height);
-  
-  // Kreise zeichnen
+
+  // Kreisgrößen
   let leftSize = map(val, 0, 100, width * 0.8, width * 0.05);
   let rightSize = map(val, 0, 100, width * 0.05, width * 0.8);
-  
-  fill(light);
-  ellipse(width / 4, height / 2, leftSize, leftSize);  
-  fill(dark);
-  ellipse(3 * width / 4, height / 2, rightSize, rightSize);
+
+  // Interpolationswert für smooth Übergang (0 = linker Kreis klein, 1 = rechter Kreis klein)
+  let t = map(leftSize - rightSize, -width*0.75, width*0.75, 0, 1);
+  t = constrain(t, 0, 1);
+
+  // Hintergrundfarbe: dunkler Hintergrund für kleinen linken Kreis, heller für kleinen rechten
+  let bgColor = lerpColor(dark, light, t);
+  background(bgColor);
+
+  // Kreisfarbe: kontrastierend zum Hintergrund
+  let circleColor = lerpColor(light, dark, t);
+
+  // Nur kleiner Kreis anzeigen
+  if (leftSize < rightSize) {
+    fill(circleColor);         // heller Kreis auf dunklem Hintergrund
+    ellipse(width / 4, height / 2, leftSize, leftSize);
+  } else {
+    fill(circleColor);         // dunkler Kreis auf hellem Hintergrund
+    ellipse(3 * width / 4, height / 2, rightSize, rightSize);
+  }
 }
